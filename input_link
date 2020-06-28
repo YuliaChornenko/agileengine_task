@@ -1,0 +1,4 @@
+from test_task import make_ok
+
+link = (input('Paste the link: ')).strip()
+make_ok(link)
