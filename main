@@ -1,0 +1,64 @@
+import requests as req
+from bs4 import BeautifulSoup
+from nltk.corpus import wordnet
+import re
+
+
+original = 'https://agileengine.bitbucket.io/beKIvpUlPMtzhfAy/samples/sample-0-origin.html'
+case_1 = 'https://agileengine.bitbucket.io/beKIvpUlPMtzhfAy/samples/sample-1-evil-gemini.html'
+case_2 = 'https://agileengine.bitbucket.io/beKIvpUlPMtzhfAy/samples/sample-2-container-and-clone.html'
+case_3 = 'https://agileengine.bitbucket.io/beKIvpUlPMtzhfAy/samples/sample-3-the-escape.html'
+case_4 = 'https://agileengine.bitbucket.io/beKIvpUlPMtzhfAy/samples/sample-4-the-mash.html'
+list_of_link = [original, case_1, case_2, case_3, case_4]
+
+def get_synonyms(words):
+    """
+    Looking for synonyms.
+    :param words: words to which you need to find synonyms
+    :return: list of synonyms
+    """
+    synonyms = words.copy()
+    for word in words:
+        for syn in wordnet.synsets(word):
+            for l in syn.lemmas():
+                synonyms.append(l.name())
+    words = [x.lower() for x in synonyms]
+    words = set([x.replace('_', ' ') for x in words])
+    return words
+
+def make_ok(link):
+    """
+    Shows information about "Everything OK" button
+    :param link: page link
+    :return: information
+    """
+    resp = req.get(link)
+    soup = BeautifulSoup(resp.text, 'xml')
+    panel = (soup.find('div', 'panel panel-default')).find_all('a')
+    words = ['great', 'ok', 'perfect']
+    stop_words = ['break', 'somehow', 'false']
+    words = get_synonyms(words)
+    stop_words = get_synonyms(stop_words)
+    panel = panel[4:]
+    i = 0
+    for title in panel:
+        panel_text = title.text
+        list_of_words = re.findall(r"[\w']+", panel_text)
+        list_of_words = [x.lower() for x in list_of_words]
+        s = 0
+        for word in list_of_words:
+            if word in words:
+                for stop_word in list_of_words:
+                    if stop_word in stop_words:
+                        s += 1
+            else:
+                if word in stop_words:
+                    s += 1
+
+        if s == 0:
+            print(panel[i])
+        i += 1
+
+# call the function
+# for link in list_of_link:
+#     make_ok(link)
