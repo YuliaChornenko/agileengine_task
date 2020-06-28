@@ -2,7 +2,7 @@
 
 python
 
-main.py - file with functions, running which you can see information about all "Everything OK" buttons
+main.py - file with functions, running which you can see information about all "Everything OK" buttons;
 input_link.py - run it, paste the link to the page here and you will see the info about the button "Everything OK" on it
 
 A bit about my algorithm:
